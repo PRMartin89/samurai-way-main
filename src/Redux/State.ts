@@ -1,4 +1,7 @@
 import Message from "../components/Dialogs/Message/Message";
+import {stat} from "fs";
+import {rerenderEntireTree} from "../index";
+type TypeOnChange = () => void;
 
 type MessageType = {
     id:number
@@ -15,6 +18,7 @@ export type PostType = {
     message?:string
 }
 export type ProfilePagesType = {
+    messageForNewPost: string
     posts: Array<PostType>
 }
 export type DialogPageType = {
@@ -35,7 +39,8 @@ export type RootStateType = {
 
 let state: RootStateType = {
     profilePage:{
-            posts:[
+        messageForNewPost: "",
+        posts:[
                 {id: 1, message: 'Привет, как ты?', likesCount: 12},
                 {id: 2, message: 'Это моя первая публикация', likesCount: 34}
             ],
@@ -59,4 +64,26 @@ let state: RootStateType = {
     },
     sidebar: {}
 }
+
+let onChange: TypeOnChange
+
+export const subscribe = (callback: () => void) => {
+    onChange = callback
+}
+
+export const addPost = (postText: string) => {
+    const newPost: PostType = {
+        id: new Date().getTime(),
+        message: postText,
+        likesCount: 0
+    }
+    state.profilePage.posts.push(newPost)
+    onChange()
+}
+
+export const changeNewText = (newText: string) => {
+    state.profilePage.messageForNewPost = newText
+    onChange()
+}
+
 export default state
